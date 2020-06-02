@@ -58,6 +58,21 @@ class OrderItem(models.Model):
     def __str__(self):
         return f'{self.quantity} of {self.item.title}'
 
+    #total item price getter
+    def get_total_item_price(self):
+        """Total item price getter """
+        return self.item.price * self.quantity
+
+    #total disount item price getter
+    def get_total_discount_item_price(self):
+        """Total discount item price getter """
+        return self.item.discount_price * self.quantity
+
+    #total saved ammount getter
+    def get_amount_saved(self):
+        """ Total saved ammount getter """
+        return self.get_total_item_price() - self.get_total_discount_item_price()
+
 #Order model
 class Order(models.Model):
     """ order actions model class """
@@ -69,3 +84,7 @@ class Order(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+
+    #
