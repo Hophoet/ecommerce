@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {%  block content %}
 
   <!--Main layout-->
@@ -66,7 +66,7 @@
 
               <!--Card image-->
               <div class="view overlay">
-                <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Vertical/12.jpg" class="card-img-top"
+                <img src="{% static 'img/feature_3.png' %}" class="card-img-top"
                   alt="">
                 <a>
                   <div class="mask rgba-white-slight"></div>

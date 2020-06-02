@@ -7,9 +7,9 @@ from .models import Item, OrderItem, Order
 class HomeView(ListView):
     model = Item
     template_name = 'home.html'
-    paginate_by = 1
+    paginate_by = 2
 
-    
+
 class ItemDetailView(DetailView):
     model = Item
     template_name = 'product.html'
@@ -81,6 +81,7 @@ def remove_from_cart(request, slug):
                 ordered=False
             )[0]
             order.items.remove(order_item)
+            order_item.delete()
             messages.info(request, 'This item was removed form your cart.')
         else:
             messages.info(request, 'This item was not in your cart.')
