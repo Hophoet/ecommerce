@@ -5,7 +5,7 @@ media
 .DS_Store
 *.sqlite3
 *.env
-
+venvdj20/ 
 # Accept these files in the repository
 !.gitignore
 !.travis.yml
