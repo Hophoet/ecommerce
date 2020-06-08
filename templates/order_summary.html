@@ -39,7 +39,17 @@
               {% endif %}
             </td>
           </tr>
+        {% empty %}
+          <tr>
+            <th colspan='5'>Order not available</th>
+          </tr>
+          <tr>
+            <td colspan="5">
+              <a href="{% url 'core:home' %}" class="btn btn-default float-right">continue shopping</a>
+            </td>
+          </tr>
         {% endfor %}
+        {% if order.get_total_price %}
           <tr>
             <td colspan="4"><b>Order total</b></td>
             <td><b>${{ order.get_total_price }}</b></td>
@@ -50,6 +60,7 @@
               <a href="{% url 'core:home' %}" class="btn btn-default float-right">continue shopping</a>
             </td>
           </tr>
+        {% endif %}
         </tbody>
       </table>
     </div>
