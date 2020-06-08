@@ -29,12 +29,12 @@
               <a href="">
                 <span class="badge purple mr-1">{{item.get_category_display}}</span>
               </a>
-              <a href="">
+              <!-- <a href="">
                 <span class="badge blue mr-1">New</span>
               </a>
               <a href="">
                 <span class="badge red mr-1">Bestseller</span>
-              </a>
+              </a> -->
             </div>
 
             <p class="lead">
@@ -48,7 +48,7 @@
               {% endif %}
 
             </p>
-            <strong>{{object.title}}</strong>
+            <p class="lead font-weight-bold"><strong>{{object.title}}</strong></p>
             <p class="lead font-weight-bold">Description</p>
 
             <p>{{ object.description }}</p>

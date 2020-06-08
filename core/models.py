@@ -73,6 +73,13 @@ class OrderItem(models.Model):
         """ Total saved ammount getter """
         return self.get_total_item_price() - self.get_total_discount_item_price()
 
+    #finale price getter
+    def get_final_price(self):
+        """finale price getter """
+        if self.item.discount_price:
+            return self.get_total_discount_item_price()
+        return self.get_total_item_price()
+
 #Order model
 class Order(models.Model):
     """ order actions model class """
@@ -84,6 +91,16 @@ class Order(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    def get_total_price(self):
+        """Order total price getter """
+        total = 0
+        for order_item in self.items.all():
+            print(order_item.item.title, order_item.get_final_price())
+            total += order_item.get_final_price()
+        return total
+
+
 
 
 

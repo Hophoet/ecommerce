@@ -10,7 +10,7 @@ from .models import Item, OrderItem, Order
 class HomeView(ListView):
     model = Item
     template_name = 'home.html'
-    paginate_by = 2
+    paginate_by = 4
 
 
 class ItemDetailView(DetailView):
@@ -74,6 +74,7 @@ def add_to_cart(request, slug):
 
     return redirect('core:product', slug=slug)
 
+
 @login_required
 def remove_from_cart(request, slug):
     item = get_object_or_404(Item, slug=slug)
@@ -103,3 +104,84 @@ def remove_from_cart(request, slug):
     else:
         messages.info(request, 'You do not have an order.')
     return redirect('core:product', slug=slug)
+
+
+
+
+@login_required
+def remove_single_item_from_cart(request, slug):
+    item = get_object_or_404(Item, slug=slug)
+    order_item, created = OrderItem.objects.get_or_create(
+        item=item,
+        user=request.user,
+        ordered=False
+    )
+
+    order_queryset = Order.objects.filter(user=request.user, ordered=False)
+    #check if the orderqs exists
+    if order_queryset.exists():
+        order = order_queryset[0]
+        #check if the order item is in the order
+        if order.items.filter(item__slug=item.slug).exists():
+            order_item = OrderItem.objects.filter(
+                item=item,
+                user=request.user,
+                ordered=False
+            )[0]
+            #check if the order_item quantity is greater or equal to 1
+            if order_item.quantity > 1:
+                order_item.quantity -= 1
+                order_item.save()
+                messages.info(request, 'This item was update form your cart.')
+            #remove the order item
+            else:
+                order.items.remove(order_item)
+        else:
+            messages.info(request, 'This item was not in your cart.')
+            return redirect('core:order-summary')
+    else:
+        messages.info(request, 'You do not have an order.')
+    return redirect('core:order-summary')
+
+
+
+@login_required
+def add_single_item_to_cart(request, slug):
+    """ add to cart view method manager """
+    #get of the item
+    item = get_object_or_404(Item, slug=slug)
+    #geting of the order_item, or creation if not exists
+    order_item, created = OrderItem.objects.get_or_create(
+        item=item,
+        user=request.user,
+        ordered=False
+    )
+    #get of the order of the current user, and (not ordered)
+    order_queryset = Order.objects.filter(user=request.user, ordered=False)
+    #case: if the user has alrady an unordered order
+    if order_queryset.exists():
+        #get of the order in the query set
+        order = order_queryset[0]
+        #check if the order item is in the order
+        if order.items.filter(item__slug=item.slug).exists():
+            #increase by 1 the quantity
+            order_item.quantity += 1
+            order_item.save()
+            messages.info(request, f'This item quantity was updated.')
+        #the item not in the cart
+        else:
+            messages.info(request, f'This item was added to your cart.')
+            #add in the cart
+            order.items.add(order_item)
+    else:
+        #the user has not alrady an unordered order
+        ordered_date = timezone.now()
+        #creation of a new order
+        order = Order.objects.create(
+            user=request.user, ordered_date=ordered_date
+        )
+        #adding the current item to add in the cart
+        order.items.add(order_item)
+        messages.info(request, f'This item was added to your cart.')
+
+    return redirect('core:order-summary')
