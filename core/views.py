@@ -72,10 +72,8 @@ def add_to_cart(request, slug):
         order = order_queryset[0]
         #check if the order item is in the order
         if order.items.filter(item__slug=item.slug).exists():
-            #grow the quantity by 1 whit
-            order_item.quantity += 1
-            order_item.save()
-            messages.info(request, f'This item quantity({order_item.quantity}) was updated.')
+            #don't do nothing
+            messages.info(request, f'This item is alraidy add.')
         #the item not in the cart
         else:
             messages.info(request, f'This item({order_item.quantity}) was added to your cart.')
@@ -157,9 +155,13 @@ def remove_single_item_from_cart(request, slug):
                 messages.info(request, 'This item was update form your cart.')
             #remove the order item
             else:
+                #remove the order item in the order
                 order.items.remove(order_item)
+                #delete the order item
+                order_item.delete()
+        #if the item is not in the cart
         else:
-            messages.info(request, 'This item was not in your cart.')
+            messages.info(request, 'This item is not in your cart.')
             return redirect('core:order-summary')
     else:
         messages.info(request, 'You do not have an order.')
