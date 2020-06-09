@@ -6,20 +6,25 @@ from django.shortcuts import render, redirect, get_object_or_404
 from  django.views.generic import ListView, DetailView, View
 from django.utils import timezone
 from .models import Item, OrderItem, Order
+from .forms import CheckoutForm
+
+
 # Create your views here.
 class HomeView(ListView):
+    """ Home page view """
     model = Item
     template_name = 'home.html'
     paginate_by = 4
 
 
 class ItemDetailView(DetailView):
+    """ Item detail page view """
     model = Item
     template_name = 'product.html'
 
 #order summary
 class OrderSummaryView(LoginRequiredMixin, View):
-
+    """ Order summary page view """
     def get(self, *args, **kwargs):
         try:
             order = Order.objects.get(user=self.request.user, ordered=False)
@@ -29,9 +34,24 @@ class OrderSummaryView(LoginRequiredMixin, View):
         context = {'order':order}
         return render(self.request, 'order_summary.html', context)
 
-def checkout(request):
-    context = {}
-    return render(request, 'checkout.html', context)
+
+class CheckoutView(LoginRequiredMixin, View):
+    """ Checkout page view """
+    def get(self, *args, **kwargs):
+        form = CheckoutForm()
+        context = {
+            'form':form
+        }
+        return render(self.request, 'checkout.html', context)
+    def post(self, *args, **kwargs):
+        form = CheckoutForm(self.request.POST or None)
+        print(self.request.POST)
+        if form.is_valid():
+            print('VALID FORM')
+            return redirect('core:checkout')
+        messages.warning(self.request, 'Failed checkout')
+        return redirect('core:checkout')
+
 
 @login_required
 def add_to_cart(request, slug):
@@ -77,6 +97,7 @@ def add_to_cart(request, slug):
 
 @login_required
 def remove_from_cart(request, slug):
+    """ Remove item view """
     item = get_object_or_404(Item, slug=slug)
     order_item, created = OrderItem.objects.get_or_create(
         item=item,
@@ -110,6 +131,7 @@ def remove_from_cart(request, slug):
 
 @login_required
 def remove_single_item_from_cart(request, slug):
+    """ Remove single item view """
     item = get_object_or_404(Item, slug=slug)
     order_item, created = OrderItem.objects.get_or_create(
         item=item,
@@ -147,7 +169,7 @@ def remove_single_item_from_cart(request, slug):
 
 @login_required
 def add_single_item_to_cart(request, slug):
-    """ add to cart view method manager """
+    """ add single item to cart view """
     #get of the item
     item = get_object_or_404(Item, slug=slug)
     #geting of the order_item, or creation if not exists
