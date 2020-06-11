@@ -81,6 +81,18 @@ class OrderItem(models.Model):
             return self.get_total_discount_item_price()
         return self.get_total_item_price()
 
+#billing model
+class BillingAddress(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    street_address = models.CharField(max_length=100)
+    apartment_address = models.CharField(max_length=100)
+    contry = models.CharField(max_length=100)
+    zip = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.user.username
+
+
 #Order model
 class Order(models.Model):
     """ order actions model class """
@@ -89,6 +101,8 @@ class Order(models.Model):
     start_date = models.DateTimeField(auto_now_add=True)
     ordered_date = models.DateTimeField()
     ordered = models.BooleanField(default=False)
+    billing_address = models.ForeignKey(BillingAddress, on_delete=models.SET_NULL, blank=True, null=True)
+
 
     def __str__(self):
         return self.user.username
