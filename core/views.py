@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect, get_object_or_404
 from  django.views.generic import ListView, DetailView, View
 from django.utils import timezone
-from .models import Item, OrderItem, Order
+from .models import (Item, OrderItem, Order, BillingAddress)
 from .forms import CheckoutForm
 
 
@@ -44,13 +44,36 @@ class CheckoutView(LoginRequiredMixin, View):
         }
         return render(self.request, 'checkout.html', context)
     def post(self, *args, **kwargs):
-        form = CheckoutForm(self.request.POST or None)
-        print(self.request.POST)
-        if form.is_valid():
-            print('VALID FORM')
+        #if and order exists
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+            form = CheckoutForm(self.request.POST or None)
+            #check of the validation of the form
+            if form.is_valid():
+                #get of the user billing info
+                user = self.request.user
+                street_address = form.cleaned_data['street_address']
+                apartment_address = form.cleaned_data['apartment_address']
+                contry = form.cleaned_data['contry']
+                zip = form.cleaned_data['zip']
+                # same_billing_address = form.cleaned_data['same_billing_address']
+                # save_info = form.cleaned_data['save_info']
+                payment_option = form.cleaned_data['payment_option']
+                #saving
+                billing_address = BillingAddress.objects.create(user=user, zip=zip,
+                street_address=street_address, contry=contry)
+                #add the billing address in the order
+                order.billing_address = billing_address
+                order.save()
+
+
+
             return redirect('core:checkout')
-        messages.warning(self.request, 'Failed checkout')
-        return redirect('core:checkout')
+        #else order not exists
+        except ObjectDoesNotExist:
+            messages.error(self.request, "You don't have an Order")
+            return redirect('core:checkout')
+
 
 
 @login_required
@@ -159,6 +182,10 @@ def remove_single_item_from_cart(request, slug):
                 order.items.remove(order_item)
                 #delete the order item
                 order_item.delete()
+                #delete the order if is empty
+                if not order.items.count():
+                    print('Order items count', order.items.count())
+                    # order.delete()
         #if the item is not in the cart
         else:
             messages.info(request, 'This item is not in your cart.')
