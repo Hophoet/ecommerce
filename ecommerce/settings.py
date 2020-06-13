@@ -15,6 +15,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'debug_toolbar',
+
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -32,7 +34,9 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware'
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+
 ]
 
 ROOT_URLCONF = 'ecommerce.urls'
@@ -99,3 +103,9 @@ LOGIN_REDIRECT_URL = '/'
 
 #CRISPY FORMS
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+
+#BEBUG TOOLBAR CONFIG (internal ips)
+INTERNAL_IPS = [
+    '127.0.0.1'
+]

@@ -38,9 +38,15 @@ class OrderSummaryView(LoginRequiredMixin, View):
 class CheckoutView(LoginRequiredMixin, View):
     """ Checkout page view """
     def get(self, *args, **kwargs):
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+        except ObjectDoesNotExist:
+            messages.error(self.request, "You don't have an Order")
+            return redirect('/')
         form = CheckoutForm()
         context = {
-            'form':form
+            'form':form,
+            'order':order
         }
         return render(self.request, 'checkout.html', context)
     def post(self, *args, **kwargs):
