@@ -93,6 +93,20 @@ class BillingAddress(models.Model):
         return self.user.username
 
 
+
+
+#Payment option
+class Payment(models.Model):
+    """ payment models """
+    strip_charge_id = models.CharField(max_length=50)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ammounts = models.FloatField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """ models print show """
+        return self.user.username
+
 #Order model
 class Order(models.Model):
     """ order actions model class """
@@ -102,6 +116,7 @@ class Order(models.Model):
     ordered_date = models.DateTimeField()
     ordered = models.BooleanField(default=False)
     billing_address = models.ForeignKey(BillingAddress, on_delete=models.SET_NULL, blank=True, null=True)
+    payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, blank=True, null=True)
 
 
     def __str__(self):
@@ -114,9 +129,3 @@ class Order(models.Model):
             print(order_item.item.title, order_item.get_final_price())
             total += order_item.get_final_price()
         return total
-
-
-
-
-
-    #
