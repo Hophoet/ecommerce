@@ -36,6 +36,19 @@ class OrderSummaryView(LoginRequiredMixin, View):
         return render(self.request, 'order_summary.html', context)
 
 
+#payment view
+class PaymentView(LoginRequiredMixin, View):
+    """ payment page view """
+    def get(self, *args, **kwargs):
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+        except ObjectDoesNotExist:
+            messages.error(self.request, "You don't have an Order")
+            return redirect('/')
+        context = {'order':order}
+        return render(self.request, 'payment.html', context)
+
+
 class CheckoutView(LoginRequiredMixin, View):
     """ Checkout page view """
     def get(self, *args, **kwargs):
@@ -72,7 +85,8 @@ class CheckoutView(LoginRequiredMixin, View):
                 #add the billing address in the order
                 order.billing_address = billing_address
                 order.save()
-
+                if payment_option == 'S':
+                    return redirect('core:payment', payment_option='stripe')
 
 
             return redirect('core:checkout')
